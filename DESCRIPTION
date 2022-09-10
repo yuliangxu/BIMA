@@ -1,0 +1,15 @@
+Package: BIMA
+Type: Package
+Title: Bayesian Image Mediation Analysis
+Version: 1.0
+Date: 2022-08-04
+Author: Yuliang Xu
+Maintainer: Yuliang Xu <yuliangx@umich.edu>
+Description: Using softh-thresholding Gaussian process prior to analyze high-dimensional image mediation effect.
+License: GPL-2
+Encoding: UTF-8
+Imports: Rcpp (>= 1.0.8),  BayesGPfit, RSpectra
+Suggests: ggplot2, viridis, MASS, knitr, rmarkdown
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+RoxygenNote: 7.2.1
+VignetteBuilder: knitr
