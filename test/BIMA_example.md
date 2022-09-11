@@ -1,39 +1,11 @@
----
-title: "BIMA:Vignette"
-author: "Yuliang Xu"
-date: "`r Sys.Date()`"
-output: github_document
-vignette: >
-  %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-# plot_img: Visualize 2D images
-plot_img = function(img, grids_df,title="img",col_bar = NULL){
-  ggplot(grids_df, aes(x=x1,y=x2)) +
-    geom_tile(aes(fill = img)) +
-    scale_fill_viridis_c(limits = col_bar, oob = scales::squish)+
-
-    ggtitle(title)+
-    theme(plot.title = element_text(size=20),legend.text=element_text(size=10))
-}
-
-library(BayesGPfit)
-library(RSpectra)
-library(ggplot2)
-library(viridis)
-devtools::load_all()
-```
+BIMA:Vignette
+================
+Yuliang Xu
+2022-09-11
 
 # Create a testing case
 
-```{r}
+``` r
 num_region = 4
 side = 20
 n = 300
@@ -100,14 +72,33 @@ L = length(unlist(basis_sq$Phi_D))
 datsim = STGP_generate_theta_block(alpha_true,beta_true, 
                                    2, 0.1, grids, basis_sq$Phi_Q,lambda=lambda,region_idx,basis_sq$L_all,
                                    n.sample=n)
+#> [1] "m= 1"
+#> [1] "dim(Q[[m]])= 100 ;dim(theta_eta[[m]])= 66"
+#> [2] "dim(Q[[m]])= 66 ;dim(theta_eta[[m]])= 300"
+#> [1] "m= 2"
+#> [1] "dim(Q[[m]])= 100 ;dim(theta_eta[[m]])= 66"
+#> [2] "dim(Q[[m]])= 66 ;dim(theta_eta[[m]])= 300"
+#> [1] "m= 3"
+#> [1] "dim(Q[[m]])= 100 ;dim(theta_eta[[m]])= 66"
+#> [2] "dim(Q[[m]])= 66 ;dim(theta_eta[[m]])= 300"
+#> [1] "m= 4"
+#> [1] "dim(Q[[m]])= 100 ;dim(theta_eta[[m]])= 66"
+#> [2] "dim(Q[[m]])= 66 ;dim(theta_eta[[m]])= 300"
 datsim$lambda = lambda
 plot_img(datsim$beta_test_ST,grids_df = grids_df, "true beta")
+```
+
+![](BIMA_example_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 plot_img(datsim$alpha_test_ST, grids_df = grids_df,"true alpha")
 ```
 
+![](BIMA_example_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
+
 # Run Scalar-on-image regression
 
-```{r}
+``` r
 init = list(theta_beta = rep(1,L),
           a_sigma_beta = 1, b_sigma_beta = 1,
           D=unlist(basis_sq$Phi_D), # recompute D
@@ -150,7 +141,7 @@ sim64y = Y_regression_region_block_fast(Y = datsim$Y, M = datsim$M,
 
 # Run Image-on-scalar regression
 
-```{r}
+``` r
 n = dim(datsim$M)[2]
 p = dim(datsim$M)[1]
 L = length(datsim$theta_alpha)
@@ -165,6 +156,7 @@ gs64m = M_regression_GS(datsim,
                         kernel = list(Q = basis_sq$Phi_Q, D = basis_sq$Phi_D),
                         n_mcmc = 400)
 print("GS for M ....")
+#> [1] "GS for M ...."
 gs_burn = 370:400
 init = list(
   theta_alpha =  apply(gs64m$theta_alpha_mcmc[,gs_burn],1,mean),
@@ -179,6 +171,7 @@ n_mcmc = 2e4
 lambda = datsim$lambda
 num_block = 4
 print("MALA for M ....")
+#> [1] "MALA for M ...."
 sim64m = M_regression_region_block(datsim$M,
                                    datsim$X, t(datsim$C), basis_sq$L_all,
                                    num_region = num_block ,
@@ -196,7 +189,7 @@ sim64m = M_regression_region_block(datsim$M,
 
 # Summarize and visualize results
 
-```{r}
+``` r
 n_mcmc = dim(sim64y$theta_beta_mcmc_thin)[2]
 theta_sample = sim64y$theta_beta_mcmc_thin[, ceiling(n_mcmc*0.8):n_mcmc]
 beta_sample = STGP_mcmc(theta_sample,region_idx,basis_sq,lambda = datsim$lambda)
@@ -210,10 +203,28 @@ datsim$total_test_ST = datsim$alpha_test_ST*datsim$beta_test_ST
 
 plot_img(apply(beta_sample_thin,1,mean),
          as.data.frame(grids), "est. beta_mean")
+```
+
+![](BIMA_example_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
 plot_img(apply(alpha_sample,1,mean),
          as.data.frame(grids), "est. alpha_mean")
+```
+
+![](BIMA_example_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
 
 inclusion_map_tuned = InclusionMap(total_sample,datsim$total_test_ST,fdr_target=0.1)
+#> [1] "fdr= 0.114285714285714 thresh= 0.5"
+#> [1] "fdr= 0.114285714285714 thresh= 0.55"
+#> [1] "fdr= 0.114285714285714 thresh= 0.605"
+#> [1] "fdr= 0.114285714285714 thresh= 0.6655"
+#> [1] "fdr= 0.114285714285714 thresh= 0.73205"
+#> [1] "fdr= 0.114285714285714 thresh= 0.805255"
+#> [1] "fdr= 0.114285714285714 thresh= 0.885780500000001"
+#> [1] "fdr= 0.0882352941176471 thresh= 0.974358550000001"
 inclusion_map = InclusionMap(total_sample,datsim$total_test_ST,thresh=0.5)
 TIE = rep(0,p)
 S_idx = which(inclusion_map_tuned$mapping==1)
@@ -222,6 +233,11 @@ S_nonnull = which(datsim$total_test_ST!=0)
 TIE[S_idx] = apply(total_sample[S_idx,],1,function(a){mean(a[(abs(a))>0])})
 
 plot_img(TIE, grids_df,"estimated TIE")
+```
+
+![](BIMA_example_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+
+``` r
 
 sum_TIE = matrix(NA, nrow=1,ncol=5)
 colnames(sum_TIE) = c("FDR","Power","Precision","MSE_null","MSE_nonnull")
@@ -234,3 +250,7 @@ sim_result = NULL
 sim_result$sum_TIE = sum_TIE
 knitr::kable(sim_result)
 ```
+
+|       FDR |   Power | Precision | MSE_null | MSE_nonnull |
+|----------:|--------:|----------:|---------:|------------:|
+| 0.0882353 | 0.96875 |      0.99 | 1.67e-05 |   0.0082604 |
