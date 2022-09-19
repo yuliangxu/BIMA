@@ -73,6 +73,9 @@ arma::uvec arma_setdiff(arma::uvec x, arma::uvec y){
 //' @param interval_step An integer to denote how often to update the step size
 //' @param interval_thin An integer to denote how often to save the thinned MCMC sample for theta_beta
 //' @param display_progress True for displaying progress bar
+//' @useDynLib BIMA, .registration=TRUE
+//' @import Rcpp
+//' @export
 //' @return A List object with the following component
 //' \itemize{
 //' \item theta_beta_mcmc_thin
@@ -126,7 +129,7 @@ List Y_regression_region_block_fast(arma::colvec& Y, arma::mat& M,
     }
     // Rcout<<"-1.0"<<std::endl;
     // hyper parameter for inverse-Gamma
-    double sigma_gamma2 = 1.0, mu_gamma = 1.0,sigma_zeta_y2 = 1.0,sigma_cy2=1.0;
+    double sigma_gamma2 = 1.0, sigma_zeta_y2 = 1.0,sigma_cy2=1.0;
     if(C.n_cols !=zetay.n_rows){
       Rcout<<"Error: dimensions of C and zetay don't match!"<<
         "dim of C = "<<size(C)<<"; dim of zetay = "<<size(zetay)<<std::endl;
@@ -551,7 +554,9 @@ arma::uvec complement(arma::uword start, arma::uword end, arma::uword n) {
 //' }
 //' @param n_mcmc An integer to indicate the total number of MCMC iterations
 //' @param display_progress True for displaying progress bar
+//' @useDynLib BIMA, .registration=TRUE
 //' @import Rcpp
+//' @export
 //' @return A list of
 //' \itemize{
 //'   \item theta_eta
@@ -744,6 +749,8 @@ List M_regression_GS(Rcpp::List& data, Rcpp::List& init,
 //' @param thinning An integer to indicate how often to save the MCMC samples for theta_alpha
 //' @param display_progress True for displaying progress bar
 //' @import Rcpp
+//' @useDynLib BIMA, .registration=TRUE
+//' @export
 //' @return A List object with the following component
 //' \itemize{
 //' \item theta_alpha_mcmc
@@ -825,7 +832,6 @@ List M_regression_region_block( arma::mat& M,
     XcXq_sumsq.col(j) += C_t.rows(c_j) * trans(C_t.row(j));
   }
 
-
   for(int l=0; l<num_region; l++){
     arma::uvec idx = region_idx[l];
     arma::mat Q = K[l];
@@ -842,7 +848,6 @@ List M_regression_region_block( arma::mat& M,
 
 
   }
-
 
 
   //return
@@ -864,7 +869,6 @@ List M_regression_region_block( arma::mat& M,
   arma::vec  sigma_alpha2_inv_mcmc = arma::zeros(total_mcmc,1);
   arma::mat theta_eta_temp(L_max,n);
   arma::vec  sigma_eta2_inv_mcmc = arma::zeros(total_mcmc,1);
-
   Progress prog(n_mcmc*num_region, display_progress);
   timer.step("start of iteration");
   for(int iter=0; iter<n_mcmc; iter++){
@@ -898,11 +902,9 @@ List M_regression_region_block( arma::mat& M,
       arma::uvec delta_in_block = intersect(idx,delta);
 
       arma::mat K_block_t = Q.t();
-
       // arma::mat M_star = K_block_t*(M.rows(idx) - ones(idx.n_elem,1)*zetam.t()*C_t) - theta_eta.rows(L_idx);
       arma::mat M_star = K_block_t*M.rows(idx) - theta_zetam.rows(L_idx) * C_t - theta_eta.rows(L_idx);
       arma::mat temp = M_star - K_block_t.cols(delta_Q)*(alpha.rows(delta_in_block)-sign(alpha.rows(delta_in_block))*lambda)*X.t();
-
       arma::mat temp_X = temp;
       temp_X.each_row()%= X.t();
       arma::vec  temp_sum = arma::sum(temp_X,1)*sigma_M2_inv;
@@ -912,7 +914,6 @@ List M_regression_region_block( arma::mat& M,
       double step = step_all(m);
       arma::vec   theta_alpha_diff = step*grad_f+sqrt(2*step)*arma::randn(size(grad_f));
       arma::vec  theta_alpha_new_block = theta_alpha(L_idx) + theta_alpha_diff;
-
 
 
       // MH step
@@ -951,7 +952,6 @@ List M_regression_region_block( arma::mat& M,
         accept_block(iter,m) = 1;
         temp = temp_new;
       }
-
 
 
 

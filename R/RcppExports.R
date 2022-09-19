@@ -41,6 +41,9 @@
 #' @param interval_step An integer to denote how often to update the step size
 #' @param interval_thin An integer to denote how often to save the thinned MCMC sample for theta_beta
 #' @param display_progress True for displaying progress bar
+#' @useDynLib BIMA, .registration=TRUE
+#' @import Rcpp
+#' @export
 #' @return A List object with the following component
 #' \itemize{
 #' \item theta_beta_mcmc_thin
@@ -95,7 +98,9 @@ Y_regression_region_block_fast <- function(Y, M, X, C, L_all, num_region, region
 #' }
 #' @param n_mcmc An integer to indicate the total number of MCMC iterations
 #' @param display_progress True for displaying progress bar
+#' @useDynLib BIMA, .registration=TRUE
 #' @import Rcpp
+#' @export
 #' @return A list of
 #' \itemize{
 #'   \item theta_eta
@@ -150,6 +155,8 @@ M_regression_GS <- function(data, init, region_idx_cpp, kernel, n_mcmc, display_
 #' @param thinning An integer to indicate how often to save the MCMC samples for theta_alpha
 #' @param display_progress True for displaying progress bar
 #' @import Rcpp
+#' @useDynLib BIMA, .registration=TRUE
+#' @export
 #' @return A List object with the following component
 #' \itemize{
 #' \item theta_alpha_mcmc

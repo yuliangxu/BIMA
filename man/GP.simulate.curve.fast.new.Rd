@@ -16,7 +16,7 @@ GP.simulate.curve.fast.new(
 }
 \arguments{
 \item{x}{A p by d matrix, denoting the grids of a d-dim image with p pixels.
-This is usually produced by BayesGP::GP.generate.grids}
+This is usually produced by BayesGPfit::GP.generate.grids}
 
 \item{poly_degree}{Integer, polynomial degrees.}
 

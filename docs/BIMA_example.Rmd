@@ -101,6 +101,8 @@ datsim = STGP_generate_theta_block(alpha_true,beta_true,
                                    2, 0.1, grids, basis_sq$Phi_Q,lambda=lambda,region_idx,basis_sq$L_all,
                                    n.sample=n)
 datsim$lambda = lambda
+save(datsim,file="./data/datsim.rda")
+
 plot_img(datsim$beta_test_ST,grids_df = grids_df, "true beta")
 plot_img(datsim$alpha_test_ST, grids_df = grids_df,"true alpha")
 ```

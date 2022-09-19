@@ -3,7 +3,7 @@ Type: Package
 Title: Bayesian Image Mediation Analysis
 Version: 1.0
 Date: 2022-08-04
-Author: Yuliang Xu
+Author: Yuliang Xu, Jian Kang
 Maintainer: Yuliang Xu <yuliangx@umich.edu>
 Description: Using softh-thresholding Gaussian process prior to analyze high-dimensional image mediation effect.
 License: GPL-2
@@ -13,3 +13,6 @@ Suggests: ggplot2, viridis, MASS, knitr, rmarkdown
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 7.2.1
 VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)
+LazyData: true
