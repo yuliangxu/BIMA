@@ -73,6 +73,8 @@ BIMA_mcmc = BIMA(one_region$Y, one_region$X, one_region$M, one_region$C)
 
 library(ggplot2)
 library(viridis)
+library(gtable)
+library(grid)
 # plot_img: Visualize 2D images
 plot_img = function(img, grids_df,title="img",col_bar = NULL){
   ggplot(grids_df, aes(x=x1,y=x2)) +
@@ -83,11 +85,19 @@ plot_img = function(img, grids_df,title="img",col_bar = NULL){
     theme(plot.title = element_text(size=20),legend.text=element_text(size=10))
 }
 
-plot_img(apply(BIMA_mcmc$beta_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est beta_mean")
-plot_img(apply(BIMA_mcmc$alpha_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est alpha_mean")
-plot_img(apply(BIMA_mcmc$TIE_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est TIE_mean")
+e1=plot_img(apply(BIMA_mcmc$beta_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est beta_mean")
+e2=plot_img(apply(BIMA_mcmc$alpha_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est alpha_mean")
+e3=plot_img(apply(BIMA_mcmc$TIE_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est TIE_mean")
 
 
-plot_img(one_region$beta_test_ST,as.data.frame(BIMA_mcmc$grids),"true beta_mean")
-plot_img(one_region$alpha_test_ST,as.data.frame(BIMA_mcmc$grids),"true alpha_mean")
-plot_img(one_region$beta_test_ST*one_region$alpha_test_ST ,as.data.frame(BIMA_mcmc$grids),"true TIE_mean")
+t1=plot_img(one_region$beta_test_ST,as.data.frame(BIMA_mcmc$grids),"true beta_mean")
+t2=plot_img(one_region$alpha_test_ST,as.data.frame(BIMA_mcmc$grids),"true alpha_mean")
+t3=plot_img(one_region$beta_test_ST*one_region$alpha_test_ST ,as.data.frame(BIMA_mcmc$grids),"true TIE_mean")
+
+ge1 <- ggplotGrob(e1); ge2 <- ggplotGrob(e2); ge3 <- ggplotGrob(e3)
+gt1 <- ggplotGrob(t1); gt2 <- ggplotGrob(t2); ge3 <- ggplotGrob(e3)
+est_plot <- cbind(ggplotGrob(e1), ggplotGrob(e2),ggplotGrob(e3), size = "first")
+true_plot <- cbind(ggplotGrob(t1), ggplotGrob(t2),ggplotGrob(t3), size = "first")
+g = rbind( est_plot, true_plot)
+# grid.newpage()
+grid.draw(g)

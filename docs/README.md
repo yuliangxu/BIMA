@@ -1,9 +1,63 @@
 BIMA:Vignette
 ================
 Yuliang Xu
-2022-09-11
+2022-09-18
 
-# Create a testing case
+# A testing case with 1 region using BIMA function
+
+Run with the simulated data with 1 region:
+
+``` r
+data(one_region)
+BIMA_mcmc = BIMA(one_region$Y, one_region$X, one_region$M, one_region$C)
+#> [1] "Running scalar-on-image regression ...."
+#> [1] "scalar-on-image regression completed!"
+#> [1] "Running image-on-scalar regression ...."
+#> [1] "image-on-scalar regression completed!"
+#> [1] "summarizing results...."
+```
+
+show BIMA result
+
+``` r
+
+library(ggplot2)
+library(viridis)
+library(gtable)
+library(grid)
+# plot_img: Visualize 2D images
+plot_img = function(img, grids_df,title="img",col_bar = NULL){
+  ggplot(grids_df, aes(x=x1,y=x2)) +
+    geom_tile(aes(fill = img)) +
+    scale_fill_viridis_c(limits = col_bar, oob = scales::squish)+
+
+    ggtitle(title)+
+    theme(plot.title = element_text(size=20),legend.text=element_text(size=10))
+}
+
+e1=plot_img(apply(BIMA_mcmc$beta_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est beta_mean")
+e2=plot_img(apply(BIMA_mcmc$alpha_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est alpha_mean")
+e3=plot_img(apply(BIMA_mcmc$TIE_sample,1,mean),as.data.frame(BIMA_mcmc$grids),"est TIE_mean")
+
+
+t1=plot_img(one_region$beta_test_ST,as.data.frame(BIMA_mcmc$grids),"true beta_mean")
+t2=plot_img(one_region$alpha_test_ST,as.data.frame(BIMA_mcmc$grids),"true alpha_mean")
+t3=plot_img(one_region$beta_test_ST*one_region$alpha_test_ST ,as.data.frame(BIMA_mcmc$grids),"true TIE_mean")
+
+ge1 <- ggplotGrob(e1); ge2 <- ggplotGrob(e2); ge3 <- ggplotGrob(e3)
+gt1 <- ggplotGrob(t1); gt2 <- ggplotGrob(t2); ge3 <- ggplotGrob(e3)
+est_plot <- cbind(ggplotGrob(e1), ggplotGrob(e2),ggplotGrob(e3), size = "first")
+true_plot <- cbind(ggplotGrob(t1), ggplotGrob(t2),ggplotGrob(t3), size = "first")
+g = rbind( est_plot, true_plot)
+# grid.newpage()
+grid.draw(g)
+```
+
+![](BIMA_example_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+# A testing case with 4 regions and separately running scalar-on-image and image-on-scalar regressions
+
+Generate a testing case with build-in help functions
 
 ``` r
 num_region = 4
@@ -85,18 +139,14 @@ datsim = STGP_generate_theta_block(alpha_true,beta_true,
 #> [1] "dim(Q[[m]])= 100 ;dim(theta_eta[[m]])= 66"
 #> [2] "dim(Q[[m]])= 66 ;dim(theta_eta[[m]])= 300"
 datsim$lambda = lambda
-plot_img(datsim$beta_test_ST,grids_df = grids_df, "true beta")
+# save(datsim,file="./data/datsim.rda")
+
+t1 = plot_img(datsim$beta_test_ST,grids_df = grids_df, "true beta")
+t2 = plot_img(datsim$alpha_test_ST, grids_df = grids_df,"true alpha")
+t3 = plot_img(datsim$alpha_test_ST*datsim$beta_test_ST, grids_df = grids_df,"true alpha")
 ```
 
-![](BIMA_example_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
-
-``` r
-plot_img(datsim$alpha_test_ST, grids_df = grids_df,"true alpha")
-```
-
-![](BIMA_example_files/figure-gfm/unnamed-chunk-1-2.png)<!-- -->
-
-# Run Scalar-on-image regression
+## Run Scalar-on-image regression
 
 ``` r
 init = list(theta_beta = rep(1,L),
@@ -139,7 +189,7 @@ sim64y = Y_regression_region_block_fast(Y = datsim$Y, M = datsim$M,
 # plot(sim64y$theta_beta_mcmc_thin[1,])
 ```
 
-# Run Image-on-scalar regression
+## Run Image-on-scalar regression
 
 ``` r
 n = dim(datsim$M)[2]
@@ -187,7 +237,7 @@ sim64m = M_regression_region_block(datsim$M,
                                    step = 1e-2/n)
 ```
 
-# Summarize and visualize results
+## Summarize and visualize results
 
 ``` r
 n_mcmc = dim(sim64y$theta_beta_mcmc_thin)[2]
@@ -201,30 +251,13 @@ beta_sample_thin = beta_sample[,seq(1,dim(beta_sample)[2],length.out = dim(alpha
 total_sample = beta_sample_thin*alpha_sample
 datsim$total_test_ST = datsim$alpha_test_ST*datsim$beta_test_ST
 
-plot_img(apply(beta_sample_thin,1,mean),
+e1=plot_img(apply(beta_sample_thin,1,mean),
          as.data.frame(grids), "est. beta_mean")
-```
-
-![](BIMA_example_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
-
-``` r
-plot_img(apply(alpha_sample,1,mean),
+e2=plot_img(apply(alpha_sample,1,mean),
          as.data.frame(grids), "est. alpha_mean")
-```
-
-![](BIMA_example_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
-
-``` r
 
 inclusion_map_tuned = InclusionMap(total_sample,datsim$total_test_ST,fdr_target=0.1)
-#> [1] "fdr= 0.114285714285714 thresh= 0.5"
-#> [1] "fdr= 0.114285714285714 thresh= 0.55"
-#> [1] "fdr= 0.114285714285714 thresh= 0.605"
-#> [1] "fdr= 0.114285714285714 thresh= 0.6655"
-#> [1] "fdr= 0.114285714285714 thresh= 0.73205"
-#> [1] "fdr= 0.114285714285714 thresh= 0.805255"
-#> [1] "fdr= 0.114285714285714 thresh= 0.885780500000001"
-#> [1] "fdr= 0.0882352941176471 thresh= 0.974358550000001"
+#> [1] "fdr= 0.0857142857142857 thresh= 0.5"
 inclusion_map = InclusionMap(total_sample,datsim$total_test_ST,thresh=0.5)
 TIE = rep(0,p)
 S_idx = which(inclusion_map_tuned$mapping==1)
@@ -232,12 +265,7 @@ S_null = which(datsim$total_test_ST==0)
 S_nonnull = which(datsim$total_test_ST!=0)
 TIE[S_idx] = apply(total_sample[S_idx,],1,function(a){mean(a[(abs(a))>0])})
 
-plot_img(TIE, grids_df,"estimated TIE")
-```
-
-![](BIMA_example_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
-
-``` r
+e3=plot_img(TIE, grids_df,"estimated TIE")
 
 sum_TIE = matrix(NA, nrow=1,ncol=5)
 colnames(sum_TIE) = c("FDR","Power","Precision","MSE_null","MSE_nonnull")
@@ -251,6 +279,19 @@ sim_result$sum_TIE = sum_TIE
 knitr::kable(sim_result)
 ```
 
-|       FDR |   Power | Precision | MSE_null | MSE_nonnull |
-|----------:|--------:|----------:|---------:|------------:|
-| 0.0882353 | 0.96875 |      0.99 | 1.67e-05 |   0.0082604 |
+|       FDR | Power | Precision | MSE_null | MSE_nonnull |
+|----------:|------:|----------:|---------:|------------:|
+| 0.0857143 |     1 |    0.9925 | 1.53e-05 |   0.0004575 |
+
+``` r
+
+ge1 <- ggplotGrob(e1); ge2 <- ggplotGrob(e2); ge3 <- ggplotGrob(e3)
+gt1 <- ggplotGrob(t1); gt2 <- ggplotGrob(t2); ge3 <- ggplotGrob(e3)
+est_plot <- cbind(ggplotGrob(e1), ggplotGrob(e2),ggplotGrob(e3), size = "first")
+true_plot <- cbind(ggplotGrob(t1), ggplotGrob(t2),ggplotGrob(t3), size = "first")
+g = rbind( est_plot, true_plot)
+# grid.newpage()
+grid.draw(g)
+```
+
+![](BIMA_example_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
