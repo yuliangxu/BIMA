@@ -41,7 +41,7 @@ BIMA_mcmc = BIMA(one_region$Y, one_region$X, one_region$M, one_region$C)
 
 show BIMA result
 
-```{r}
+```{r, fig.width=13, fig.height=8}
 
 library(ggplot2)
 library(viridis)
@@ -246,7 +246,7 @@ sim64m = M_regression_region_block(datsim$M,
 
 ## Summarize and visualize results
 
-```{r}
+```{r,fig.width=13, fig.height=8}
 n_mcmc = dim(sim64y$theta_beta_mcmc_thin)[2]
 theta_sample = sim64y$theta_beta_mcmc_thin[, ceiling(n_mcmc*0.8):n_mcmc]
 beta_sample = STGP_mcmc(theta_sample,region_idx,basis_sq,lambda = datsim$lambda)

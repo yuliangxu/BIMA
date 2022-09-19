@@ -257,7 +257,7 @@ e2=plot_img(apply(alpha_sample,1,mean),
          as.data.frame(grids), "est. alpha_mean")
 
 inclusion_map_tuned = InclusionMap(total_sample,datsim$total_test_ST,fdr_target=0.1)
-#> [1] "fdr= 0.0857142857142857 thresh= 0.5"
+#> [1] "fdr= 0.0606060606060606 thresh= 0.5"
 inclusion_map = InclusionMap(total_sample,datsim$total_test_ST,thresh=0.5)
 TIE = rep(0,p)
 S_idx = which(inclusion_map_tuned$mapping==1)
@@ -279,9 +279,9 @@ sim_result$sum_TIE = sum_TIE
 knitr::kable(sim_result)
 ```
 
-|       FDR | Power | Precision | MSE_null | MSE_nonnull |
-|----------:|------:|----------:|---------:|------------:|
-| 0.0857143 |     1 |    0.9925 | 1.53e-05 |   0.0004575 |
+|       FDR |   Power | Precision | MSE_null | MSE_nonnull |
+|----------:|--------:|----------:|---------:|------------:|
+| 0.0606061 | 0.96875 |    0.9925 |    7e-06 |   0.0085245 |
 
 ``` r
 
