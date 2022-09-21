@@ -7,10 +7,11 @@
 #' @param x A p by d matrix, denoting the grids of a d-dim image with p pixels.
 #' This is usually produced by BayesGPfit::GP.generate.grids
 #' @param poly_degree Integer, polynomial degrees.
-#' @param a Parameter a in GP kernel \eqn{K(s,t) = \exp(-a^2*(s^2+t^2)-b*(s-t)^2 }
-#' @param b Parameter b in GP kernel \eqn{K(s,t) = \exp(-a^2*(s^2+t^2)-b*(s-t)^2 }
+#' @param a Parameter a in GP kernel \eqn{K(s,t) = exp(-a^2*(s^2+t^2)-b*(s-t)^2 }
+#' @param b Parameter b in GP kernel \eqn{K(s,t) = exp(-a^2*(s^2+t^2)-b*(s-t)^2 }
 #' @param center Center of the grid
 #' @param scale Parameter for scaling the distance between grid points
+#' @param max_range A scaling parameter, default at 6.
 #' @import BayesGPfit
 #' @return a list
 #' \itemize{
@@ -43,7 +44,6 @@
 
 
   #‘ A function used to generate a testing case, with region separation
-  #' @export
   STGP_generate_theta_block = function(true.image.a,  true.image.b,
                                        sd.noise.a,   sd.noise.b, grids,Q,lambda,region_idx,L_all,
                                        n.sample){
@@ -169,7 +169,6 @@
 
 #‘ Generate a matern basis
 #' @importFrom RSpectra eigs_sym
-#' @export
   generate_matern_basis2 = function(grids, region_idx_list, L_vec,scale = 2,nu = 1/5,
                                     show_progress = FALSE){
     if(nu=="vec"){
@@ -206,7 +205,6 @@
   }
   #‘ Generate modified exponential square basis
   #' @importFrom RSpectra eigs_sym
-  #' @export
   generate_sq_basis = function(grids, region_idx_list,poly_degree_vec,a = 0.01, b=10, poly_degree=20,
                                show_progress=FALSE){
     num_block = length(region_idx_list)
@@ -355,7 +353,7 @@
 #' @param dim An integer to specify the dimension of the input image, where it is 1D 2D or 3D image.
 #' This must be specified when kernel_setting = "Self-defined".
 #' @param grids A matrix of size p by dim. For a 2D image,
-#' \texttt{grids[j,]} represents the location (x-y coordinate) of pixel j. For 3D image, \texttt{grids[j,,]} represents
+#' \code{grids[j,]} represents the location (x-y coordinate) of pixel j. For 3D image, \code{grids[j,,]} represents
 #' the location (x-y-z coordinates) of voxel j. This must be specified when kernel_setting = "Self-defined".
 #' @param init_y A list of initial parameter settings for Scalar-on-image regression.
 #' \itemize{
@@ -384,7 +382,7 @@
 #'     \item n_mcmc Number of total MCMC iterations, default  = 1e5.
 #'     \item stop_adjust The first number of iterations where step_size will be adjusted to achieve target acceptance rate,
 #'     default = 0.8*1e5.
-#'     \item start_joint The algorithm will update theta_beta alone for the first \texttt{start_joint} number of iterations.
+#'     \item start_joint The algorithm will update theta_beta alone for the first \code{start_joint} number of iterations.
 #'      After that all parameters will be jointly updated. We only recommend setting start_joint>0 when the problem is very high-dimensional.
 #'      default = 0.
 #'     \item interval_step An integer, set the frequency of adjusting step size, default = 10
@@ -397,7 +395,7 @@
 #'     \item n_mcmc Number of total MCMC iterations, default  = 2e4.
 #'     \item stop_adjust The first number of iterations where step_size will be adjusted to achieve target acceptance rate,
 #'     default = 0.8*2e4.
-#'     \item start_joint start_joint The algorithm will update theta_alpha alone for the first \texttt{start_joint} number of iterations.
+#'     \item start_joint start_joint The algorithm will update theta_alpha alone for the first \code{start_joint} number of iterations.
 #'      After that all parameters will be jointly updated. We only recommend setting start_joint>0 when the problem is very high-dimensional.
 #'      default = 0.
 #'     \item interval_step An integer, set the frequency of adjusting step size, default = 10
@@ -414,17 +412,17 @@
 #' \itemize{
 #'     \item method A character string to specify the type of kernel used. Currently implemented for
 #'     Exponential_square for the modified exponential square kernel and Matern for matern kernel.
-#'     Users can also set \texttt{method = "Self-defined"}, and directly use the basis functions and eigenvalues
+#'     Users can also set \code{method = "Self-defined"}, and directly use the basis functions and eigenvalues
 #'     by putting them in kernel_setting$Phi_Q and kernel_setting$Phi_D respectively.
 #'
 #'     \item kernel_params A list object.
-#'     If \texttt{method = "Exponential_square"}, the default value is \texttt{kernel_params = list(a = 0.01,b=10,poly_degree = 10)},
-#'     where a and b are the parameters in modified exponential square kernel \sqn{K(s,t) = \exp(-a(s^2+t^2) - b(s-t)^2)}.
+#'     If \code{method = "Exponential_square"}, the default value is \code{kernel_params = list(a = 0.01,b=10,poly_degree = 10)},
+#'     where a and b are the parameters in modified exponential square kernel \eqn{K(s,t) = exp(-a(s^2+t^2) - b(s-t)^2)}.
 #'     poly_degree is an integer number specifying the highest degree of Hermite polynomials.
-#'     If \texttt{method = "Matern"}, the default value is \texttt{kernel_params = list(L_vec = 0.5*unlist(lapply(region_idx,length)), scale = 2, nu = 1/5)}.
+#'     If \code{method = "Matern"}, the default value is \code{kernel_params = list(L_vec = 0.5*unlist(lapply(region_idx,length)), scale = 2, nu = 1/5)}.
 #'     L_vec is a vector of integers specifying the number of basis functions used in each region.
 #'     See wikipedia for the definition of matern kernel.
-#'     Scale represents \sqn{\rho} in this definition, and nu represents \sqn{\nu}.
+#'     Scale represents \eqn{\rho} in this definition, and nu represents \eqn{\nu}.
 #'
 #'     \item Phi_Q A list object with length num_region.
 #'     Each component represents one basis function, a matrix of dimension p_r by L_r for the r-th region.

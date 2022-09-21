@@ -33,7 +33,7 @@ BIMA(
 This must be specified when kernel_setting = "Self-defined".}
 
 \item{grids}{A matrix of size p by dim. For a 2D image,
-\texttt{grids[j,]} represents the location (x-y coordinate) of pixel j. For 3D image, \texttt{grids[j,,]} represents
+\code{grids[j,]} represents the location (x-y coordinate) of pixel j. For 3D image, \code{grids[j,,]} represents
 the location (x-y-z coordinates) of voxel j. This must be specified when kernel_setting = "Self-defined".}
 
 \item{init_y}{A list of initial parameter settings for Scalar-on-image regression.
@@ -65,7 +65,7 @@ the location (x-y-z coordinates) of voxel j. This must be specified when kernel_
     \item n_mcmc Number of total MCMC iterations, default  = 1e5.
     \item stop_adjust The first number of iterations where step_size will be adjusted to achieve target acceptance rate,
     default = 0.8*1e5.
-    \item start_joint The algorithm will update theta_beta alone for the first \texttt{start_joint} number of iterations.
+    \item start_joint The algorithm will update theta_beta alone for the first \code{start_joint} number of iterations.
      After that all parameters will be jointly updated. We only recommend setting start_joint>0 when the problem is very high-dimensional.
      default = 0.
     \item interval_step An integer, set the frequency of adjusting step size, default = 10
@@ -79,7 +79,7 @@ the location (x-y-z coordinates) of voxel j. This must be specified when kernel_
     \item n_mcmc Number of total MCMC iterations, default  = 2e4.
     \item stop_adjust The first number of iterations where step_size will be adjusted to achieve target acceptance rate,
     default = 0.8*2e4.
-    \item start_joint start_joint The algorithm will update theta_alpha alone for the first \texttt{start_joint} number of iterations.
+    \item start_joint start_joint The algorithm will update theta_alpha alone for the first \code{start_joint} number of iterations.
      After that all parameters will be jointly updated. We only recommend setting start_joint>0 when the problem is very high-dimensional.
      default = 0.
     \item interval_step An integer, set the frequency of adjusting step size, default = 10
@@ -98,17 +98,17 @@ The dafault value is list(region1 = 1:p) with only 1 region.}
 \itemize{
     \item method A character string to specify the type of kernel used. Currently implemented for
     Exponential_square for the modified exponential square kernel and Matern for matern kernel.
-    Users can also set \texttt{method = "Self-defined"}, and directly use the basis functions and eigenvalues
+    Users can also set \code{method = "Self-defined"}, and directly use the basis functions and eigenvalues
     by putting them in kernel_setting$Phi_Q and kernel_setting$Phi_D respectively.
 
     \item kernel_params A list object.
-    If \texttt{method = "Exponential_square"}, the default value is \texttt{kernel_params = list(a = 0.01,b=10,poly_degree = 10)},
-    where a and b are the parameters in modified exponential square kernel \sqn{K(s,t) = \exp(-a(s^2+t^2) - b(s-t)^2)}.
+    If \code{method = "Exponential_square"}, the default value is \code{kernel_params = list(a = 0.01,b=10,poly_degree = 10)},
+    where a and b are the parameters in modified exponential square kernel \eqn{K(s,t) = exp(-a(s^2+t^2) - b(s-t)^2)}.
     poly_degree is an integer number specifying the highest degree of Hermite polynomials.
-    If \texttt{method = "Matern"}, the default value is \texttt{kernel_params = list(L_vec = 0.5*unlist(lapply(region_idx,length)), scale = 2, nu = 1/5)}.
+    If \code{method = "Matern"}, the default value is \code{kernel_params = list(L_vec = 0.5*unlist(lapply(region_idx,length)), scale = 2, nu = 1/5)}.
     L_vec is a vector of integers specifying the number of basis functions used in each region.
     See wikipedia for the definition of matern kernel.
-    Scale represents \sqn{\rho} in this definition, and nu represents \sqn{\nu}.
+    Scale represents \eqn{\rho} in this definition, and nu represents \eqn{\nu}.
 
     \item Phi_Q A list object with length num_region.
     Each component represents one basis function, a matrix of dimension p_r by L_r for the r-th region.

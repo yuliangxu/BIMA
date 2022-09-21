@@ -20,13 +20,15 @@ This is usually produced by BayesGPfit::GP.generate.grids}
 
 \item{poly_degree}{Integer, polynomial degrees.}
 
-\item{a}{Parameter a in GP kernel \eqn{K(s,t) = \exp(-a^2*(s^2+t^2)-b*(s-t)^2 }}
+\item{a}{Parameter a in GP kernel \eqn{K(s,t) = exp(-a^2*(s^2+t^2)-b*(s-t)^2 }}
 
-\item{b}{Parameter b in GP kernel \eqn{K(s,t) = \exp(-a^2*(s^2+t^2)-b*(s-t)^2 }}
+\item{b}{Parameter b in GP kernel \eqn{K(s,t) = exp(-a^2*(s^2+t^2)-b*(s-t)^2 }}
 
 \item{center}{Center of the grid}
 
 \item{scale}{Parameter for scaling the distance between grid points}
+
+\item{max_range}{A scaling parameter, default at 6.}
 }
 \value{
 a list
