@@ -492,6 +492,7 @@ BIMA = function(Y,X,M,C, dim = 2, grids = NULL,
       if(is.null(kernel_setting$Phi_Q) | is.null(kernel_setting$Phi_D)){
         stop("kernel_setting$Phi_Q and kernel_setting$Phi_D cannot be null when using Self-defined kernels.")
       }
+    basis = list(Phi_Q = kernel_setting$Phi_Q, Phi_D = kernel_setting$Phi_D)
 
   }else{
       stop("kernel_setting$method: only Exponential_square and Matern are supported.
